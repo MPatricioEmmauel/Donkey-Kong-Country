@@ -149,12 +149,15 @@ def update():
                 #for death player.rotation_z = 90
                 #          switch = 0
         
-        #flag 
-        if ( abs(player.x - flag.x) <= 1) and (abs(player.y - ground.y) <= 2 and abs(player.y - ground.y) >= -4):
+        #Split temporary variable
+        checkGround = abs(player.y - ground.y)
+
+        #Colison con flag y fin de Programa
+        if abs(player.x - flag.x) <= 1 and (checkGround <= 2 and checkGround >= -4):
             app.closeWindow()
             
         #Colision con barril
-        if abs(player.x - cannon.x) <= 1 and abs(player.y - ground.y) <= 7 and  abs(player.y - ground.y) >= 4:    #abs(dis - SIZE_X)%SIZE_X <= 1 / abs(dis - SIZE_X)%SIZE_X >= SIZE_X - 1 / abs(player.y - ground.y) <= 1
+        if abs(player.x - cannon.x) <= 1 and (checkGround <= 7 and  checkGround >= 4):    #abs(dis - SIZE_X)%SIZE_X <= 1 / abs(dis - SIZE_X)%SIZE_X >= SIZE_X - 1 / abs(player.y - ground.y) <= 1
             player.color = color.red
         else:
             player.color = color.white
