@@ -1,16 +1,24 @@
 from __future__ import annotations
-from abc import ABC
+from abc import ABC, abstractmethod
 from ursina import *
 from ursina.prefabs.platformer_controller_2d import PlatformerController2d
 import copy
 
 # ///////////////////////////////////////// #
+
+#Bridge
 class Cases(ABC):
     '''Interfaz para funciones repetidas'''
     def makesDupes(self, n:int, position:float):
         for i in range(n):
             duplicate(self, x = position * (i + 1)),  
             duplicate(self, x = -position * (i + 1))
+
+    #strategy
+    @abstractmethod
+    def fondos():
+        pass
+
 
 # ///////////////////////////////////////// #
 
@@ -39,7 +47,7 @@ class Plattforms(Entity, Cases):
         self.color:color = color
         self.texture = texture
 
-class Background(Entity):
+class Background(Entity, Cases):
     '''Clase creadora de Fondos'''
     def __init__(self, x = 1, y = 1, z = 1, scale:tuple = (1, 1), texture = ''):
         super().__init__()
@@ -51,7 +59,7 @@ class Background(Entity):
         self.texture = texture
         self.z = z
 
-    def makeFondos( n, z, texture = ""):
+    def fondos( n, z, texture = ""):
         _cache = []
         _x = 16
         _mx = -16
@@ -98,7 +106,7 @@ class Ceiling(Entity, Cases):
         self.y = y
 
 # ///////////////////////////////////////// #
-
+#Singleton
 class Update():
     '''Singleton'''
     __instance = None
@@ -117,6 +125,8 @@ class Update():
 # ///////////////////////////////////////// #
 
 e = Update()
+app = Ursina()
+
 
 def update():
         '''Funcion Para movimiento y colisiones'''
@@ -138,25 +148,22 @@ def update():
                 # do something   
                 #for death player.rotation_z = 90
                 #          switch = 0
-        #falg
-        dis1 = abs(player.x - flag.x)  
-        if dis1 <= 1 and abs(player.y - ground.y) <= 5 and  abs(player.y - ground.y) >= 3:
-            player.color = color.red
-        else:
-            player.color = color.white
+        
+        #flag 
+        if ( abs(player.x - flag.x) <= 1) and (abs(player.y - ground.y) <= 2 and abs(player.y - ground.y) >= -4):
+            app.closeWindow()
             
-
         #Colision con barril
-        dis = abs(player.x - cannon.x)  
-        if dis <= 1 and abs(player.y - ground.y) <= 7 and  abs(player.y - ground.y) >= 4:    #abs(dis - SIZE_X)%SIZE_X <= 1 / abs(dis - SIZE_X)%SIZE_X >= SIZE_X - 1 / abs(player.y - ground.y) <= 1
+        if abs(player.x - cannon.x) <= 1 and abs(player.y - ground.y) <= 7 and  abs(player.y - ground.y) >= 4:    #abs(dis - SIZE_X)%SIZE_X <= 1 / abs(dis - SIZE_X)%SIZE_X >= SIZE_X - 1 / abs(player.y - ground.y) <= 1
             player.color = color.red
         else:
             player.color = color.white
+
+
 
 
 # /////////////////////////////////////// #
 
-app = Ursina()
 app.ventana = 60
 
 SIZE_X = 16.0
@@ -174,20 +181,24 @@ ground = Plattforms( 0, -7, 0, 16, 3.4, color.yellow, 'grass')
 ground.makesDupes(2, SIZE_X)
 
 # BackGroud // numero, z, Texture
-Background.makeFondos(3, 1, "fondos/jungle-trees")
-Background.makeFondos(3, 2, "fondos/far")
+Background.fondos(3, 1, "fondos/jungle-trees")
+Background.fondos(3, 2, "fondos/far")
 
 # Prefab Para el cielo
 Sky(texture = "assets/cloud-BG")
 
 # Walls // scale = (1, 1), color, x , y 
+initWall = Wall((1, 11), color.clear, -39.5, 0.2)
 wall = Wall((1, 5), color.azure, 6, 0.2)
+finalWall = Wall((1, 11), color.clear, 39.5, 0.2)
 
 # Level Plattform // scale:tuple, color, x 
 level = Level((3, 1), color.red, 2)
 
-#Ceiling
+#Ceiling scale, x, y
 ceiling = Ceiling((3, 1), color.cyan, -2.5, 1)
+cel2 = Ceiling((3, 1), color.cyan, -8, -1)
+cel3 = Ceiling((3, 1), color.cyan, -14, -2.5)
 
 #objects
 cannon = Entity(model = 'quad', scale = (2, 1), x = 15, y = -1, texture = "assets/barril.png")
